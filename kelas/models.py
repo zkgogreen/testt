@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User as user_root
 from config.models import Level
+from akun.models import Users, Teacher
 
 # Create your models here.
 Language = [('EN', 'English'),('JP', 'Japan'),('SA', 'Arab'),('CN', 'China')]
@@ -49,6 +50,15 @@ class Kelas(models.Model):
     time        = models.IntegerField(choices=jam, blank=True, default=1)
     mulai       = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     jadwal      = models.IntegerField(choices=jadwal, blank=True, default=1)
+    def __str__(self):
+        return "{} {}".format(self.mentor, self.jadwal)
+    def user(self):
+        return Users.objects.get(user=self.mentor)
+    def teacher(self):
+        return Teacher.objects.get(user=self.mentor)
+    def peserta(self):
+        return UserMeeting.objects.filter(kelas=self).count()
+        
 
 class Schadule(models.Model):
     room        = models.ForeignKey(Kelas,blank=True, null=True,on_delete=models.CASCADE, related_name="teacher_schadule_room")
@@ -65,6 +75,7 @@ class UserMeeting(models.Model):
     user        = models.ForeignKey(user_root, blank=True, null=True,on_delete=models.CASCADE, related_name="user_meeting")
     kelas       = models.ForeignKey(Kelas, blank=True, null=True,on_delete=models.CASCADE, related_name="user_meeting")
     program     = models.ForeignKey(Program, blank=True, null=True,on_delete=models.CASCADE, related_name="user_meeting")
+    transaksi   = models.ForeignKey('transaksi.Transaksi', blank=True, null=True,on_delete=models.CASCADE, related_name="user_transaksi")
     start       = models.DateField(auto_now_add=True)
     end         = models.DateField(auto_now=False, auto_now_add=False, blank=True, null=True)
     meetremain  = models.IntegerField(default=0)

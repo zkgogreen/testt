@@ -24,7 +24,7 @@ body {
     height: 50px;
     text-decoration: none;
     align-items: center;
-    border-radius: 30px;
+    border-radius: 15px;
     transition: background-color .2s;
   }
   .sidebar a.active {

@@ -1,0 +1,172 @@
+{% extends 'dashboard.html' %}
+{% load custom_tags %}
+{% load static %}
+
+{% block title %}index{% endblock %}
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col-md-9">
+      <div class="row">
+        <div class="col-lg-3 col-md-6 col-6">
+          <div class=" bg-white shadow p-2 m-1 rounded-3 w-100" style="height: 80px;">
+            <h4>{% if me.premium %}Premium{% else %}FREE{% endif %}</h4>
+            <a href="{% url 'kelas:upgrade' %}" class=" text-decoration-none text-primary d-flex justify-content-between w-100">Upgrade <i class="fa-solid fa-angle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-6">
+          <div class=" bg-white shadow p-2 m-1 rounded-3 w-100" style="height: 80px;">
+            <h4>Level</h4>
+            <div class="text-primary d-flex justify-content-between">{{me.level.name}} <i class="fa-solid fa-angle-right"></i></div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-6">
+          <div class=" bg-white shadow p-2 m-1 rounded-3 w-100" style="height: 80px;">
+            {% if mentor.mentor %}
+            <div class="d-flex justify-content-between w-100">
+              <div class="lh-1">
+                <h4>Mentor</h4>
+                <div style="line-height: 2px;">
+                  <span class="text-muted text-uppercase h4">{{mentor.mentor.first_name}} {{mentor.mentor.last_name}}</span><br>
+                  <div class="text-secondary fw-semibold ms-1">{{mentor.start|date:"d M"}} - {{mentor.end|date:"d M"}} </div>
+                </div>
+              </div>
+              <a href="#" class="align-self-center h3 text-primary"><i class="fas fa-message"></i></a>
+            </div>
+            {% else %}
+            <h4>Mentor</h4>
+            <a href="{% url 'kelas:index' %}" class=" text-primary text-decoration-none d-flex justify-content-between w-100">Cari mentor <i class="fa-solid fa-angle-right"></i></a>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-6">
+          <div class=" bg-white shadow p-2 m-1 rounded-3 w-100" style="height: 80px;">
+            <h4>Kelas</h4>
+            {% if kelas %}
+            {% else %}
+            <a href="{% url 'modul:index' %}" class=" text-decoration-none text-primary d-flex justify-content-between w-100">Cari Kelas <i class="fa-solid fa-angle-right"></i></a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<div class="row">
+
+      <!-- kelas -->
+      <div class="container row" style="margin-top: 30px;">
+        <div class="col-md-6 col-12">
+          <div class="card sahdow-sm px-4">
+            <h3 class="fw-bold my-3 ms-3">Pembelajaran</h3>
+            {% for k in kelas %}
+            <div class="d-flex flex-column">
+              <div class="d-flex justify-content-between bg-light rounded-3 m-2 p-3">
+                <div class="align-self-center w-100 me-3"><h5 class="fw-bold">Belajar {{k.kelas}}</h5>
+                  <div class="progress" role="progressbar" aria-label="Example 1px high" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="height: 5px">
+                    <div class="progress-bar" style="width: {{k.percent}}%"></div>
+                  </div>
+                </div>
+                <a href="{% url 'modul:koridor' slug=k.kelas.slug %}" class="btn text-primary fw-bold align-self-center">LANJUTKAN</a>
+              </div>
+            </div>
+            {% endfor %}
+            <div class="d-flex justify-content-end">
+              <a href="{% url 'modul:index' %}" class="btn btn-primary rounded-0 m-2 fw-bold">Lihat Semua Kelas</a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-12">
+          <div class="card shadow-sm px-4">
+            <h3 class="fw-bold my-3 ms-3">Bootcamp</h3>
+            <!-- hari ini -->
+            {% if today %}
+            <div class="d-flex flex-column">
+              <div class="d-flex justify-content-between bg-light rounded-3 p-2">
+                <div class="align-self-center w-100 me-3"><h5 class="fw-semibold">Hari ini</h5>
+                  {{today.tanggal|date:"d M Y"}} | <span id="gettime">{{today.schadule.get_time_display}}</span> WIB
+                </div>
+                {% if today.now %}
+                <a href="{{today.schadule.link}}" target="_blank" class="btn text-primary fw-bold align-self-center disabled" id="time">waiting</a>
+                {% else %}
+                <div></div>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+            <!-- end hari ini -->
+            
+            <!-- besok -->
+            {% if coming %}
+            <div class="d-flex flex-column">
+              <div class="d-flex justify-content-between bg-light rounded-3 p-2">
+                <div class="align-self-center w-100 me-3"><h5 class="fw-semibold">Mendatang</h5>
+                  {{coming.tanggal|date:"d M Y"}} | {{coming.room.get_time_display}} WIB
+                </div>
+                <a href="{% url 'kelas:index' %}" class="btn text-primary fw-bold align-self-center text-end">Selengkapnya</a>
+              </div>
+            </div>
+            {% endif %}
+            <!-- end besok -->
+            
+            <!-- terlewatkan -->
+            {% if pass %}
+            <div class="d-flex flex-column">
+              <div class="d-flex justify-content-between bg-light rounded-3 p-2">
+                <div class="align-self-center w-100 me-3"><h5 class="fw-semibold text-danger">Terlewatkan</h5>
+                  {{pass.tanggal|date:"d M Y"}} | {{pass.room.get_time_display}} WIB
+                </div>
+                <a href="{% url 'kelas:index' %}" class="btn text-primary fw-bold align-self-center text-end">reschadule</a>
+              </div>
+            </div>
+            {% endif %}
+            <!-- end terlewatkan -->
+            <div class="d-flex justify-content-end">
+              <a href="{% url 'kelas:index' %}" class="btn btn-primary rounded-0 m-2 fw-bold">Selengkapnya</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% endblock content %}
+{% block script %}
+<script>
+function perbarui(id){
+  getid = document.getElementsByClassName("id_userroom");
+  for(var i=0; i<getid.length;i++){
+    getid[i].value = id;
+  }
+}
+</script>
+{% if today %}
+<script>
+var time              = document.getElementById("time");
+var countdownElement  = document.getElementById("gettime");
+function updateCountdown() {
+    var now = new Date();
+
+    var initialTime = countdownElement.innerText.split(":");
+    var targetHours = parseInt(initialTime[0]);
+    var targetMinutes = parseInt(initialTime[1]);
+    var targetTime = new Date();
+    targetTime.setHours(targetHours, targetMinutes-3, 0, 0);
+
+    var timeDiff = targetTime - now;
+
+    if (timeDiff <= 0) {
+        time.innerHTML = 'Buka Zoom';
+        time.classList.remove("disabled")
+    } else {
+        var hours = Math.floor(timeDiff / (1000 * 60 * 60));
+        var minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+        time.innerHTML = hours + 'h ' + minutes + 'm ' + seconds + 's';
+    }
+}
+setInterval(updateCountdown, 1000);
+</script>
+{% endif %}
+{% endblock script %}

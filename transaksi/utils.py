@@ -13,7 +13,7 @@ snap = midtransclient.Snap( is_production=False,server_key=server_key)
 
 def purchase(user, program, tgl=datetime.now()):
     try:
-        transaksi = Transaksi.objects.create(user=user, program=program, jumlah=program.discount, purchased=True, tgl=tgl)
+        transaksi = Transaksi.objects.create(user=user, program=program, jumlah=program.discount, tgl=tgl)
         TransaksiOwner.objects.create(jumlah=program.discount * setting.komisi_owner / 100, transaksi=transaksi)
         TransaksiDeveloper.objects.create(jumlah=program.discount * setting.komisi_developer / 100, transaksi=transaksi)
         return transaksi

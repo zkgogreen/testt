@@ -1,11 +1,14 @@
 from kelas.models import Kelas, Schadule, UserMeeting
-from transaksi.models import TransaksiGuru
+from transaksi.models import TransaksiGuru, Transaksi
 from config.models import Setting
 from akun.models import Teacher
+from kelas.models import Program
+
+from transaksi.utils import midtrans, purchase
 
 from django.db.models import F
 import datetime
-
+x = datetime.datetime.now()
 setting = Setting.objects.all().first()
 
 Language = [('EN', 'English'),('JP', 'Japan'),('SA', 'Arab'),('CN', 'China')]
@@ -19,10 +22,7 @@ def fetchday(tanggal, hari):
     pilih_hari = [0, 2, 4] if hari == 0 else [1, 3, 5] if hari == 1 else [4, 5, 6]
     tanggal_hari_tertentu = []
     i = 1
-
-    # Loop dari tanggal sekarang sampai tanggal 1 bulan ke depan
     while i <= 30:
-        # Periksa apakah tanggal adalah hari Senin, Rabu, atau Jumat
         if tanggal.weekday() in pilih_hari:  # Senin=0, Rabu=2, Jumat=4
             tanggal_hari_tertentu.append(tanggal)
             i = i + 1
@@ -42,6 +42,27 @@ def buatKelas(user, program, jam, jadwal, mulai):
     for day in fetchday(kelas.mulai, kelas.jadwal):
                 Schadule.objects.create(room=kelas, mentor=user, tanggal=day, program=kelas.program)
     return kelas
+
+def upgradeKelas(request, id):
+    program = Program.objects.get(id=id)
+    transaksi = purchase(user=request.user, program=program)
+    
+    # Transaksi.objects.create(user=request.user, )
+    price = program.biaya
+    ref_id = transaksi.id
+    url, SessionID = midtrans(request, price, ref_id)
+    # url, SessionID = pay(request, product, price, ref_id)
+    transaksi.SessionID = SessionID
+    transaksi.save()
+    return url
+
+def confirmUpgrade(request, transaksi):
+    program = Program.objects.get(id=transaksi.program.id)
+    nextmonth = x.replace(month=(x.month + program.durasi) % 12 + 1)
+
+    if nextmonth.month == 1:
+        nextmonth = nextmonth.replace(year=nextmonth.year + 1)
+    UserMeeting.objects.create(user=request.user, transaksi=transaksi, program=program, end=nextmonth, meetremain=program.pertemuan)
     
 
     
