@@ -1,14 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User as user_root
-from modul.models.modul import Module, Pelajaran, Bab, VocabGroup, Games, Soal
 Language = [('EN', 'English'),('JP', 'Japan'),('SA', 'Arab'),('CN', 'China')]
 
 
 class Enroll(models.Model):
     user        = models.ForeignKey(user_root, blank=True, null=True,on_delete=models.CASCADE, related_name="user_course_user")
-    kelas       = models.ForeignKey(Module,blank=True, null=True,on_delete=models.CASCADE, related_name="user_kelas")
-    pelajaran   = models.ForeignKey(Pelajaran,blank=True, null=True,on_delete=models.CASCADE, related_name="user_history_pelajaran") #mendapat histori pelajaran
-    bab_kelas   = models.ForeignKey(Bab,blank=True, null=True,on_delete=models.CASCADE, related_name="user_history")                  # mendapat histori bab
+    kelas       = models.ForeignKey("modul.Module",blank=True, null=True,on_delete=models.CASCADE, related_name="user_kelas")
+    pelajaran   = models.ForeignKey("modul.Pelajaran",blank=True, null=True,on_delete=models.CASCADE, related_name="user_history_pelajaran") #mendapat histori pelajaran
+    bab_kelas   = models.ForeignKey("modul.Bab",blank=True, null=True,on_delete=models.CASCADE, related_name="user_history")                  # mendapat histori bab
     tanggal     = models.DateField(auto_now_add=True)
     finish      = models.BooleanField(default=False)
     like        = models.IntegerField(default=0)
@@ -27,9 +26,9 @@ class Enroll(models.Model):
 # lesson yang sudah dikerjakan
 class UserPelajaran(models.Model):
     user        = models.ForeignKey(user_root, blank=True, null=True,on_delete=models.CASCADE, related_name="user_lesson_user")
-    kelas       = models.ForeignKey(Module,blank=True, null=True,on_delete=models.CASCADE, related_name="user_kelas_lesson")
-    bab_kelas   = models.ForeignKey(Bab,blank=True, null=True,on_delete=models.CASCADE, related_name="user_bab_kelas_lesson")
-    pelajaran   = models.ForeignKey(Pelajaran,blank=True, null=True,on_delete=models.CASCADE, related_name="user_pelajaran")
+    kelas       = models.ForeignKey("modul.Module",blank=True, null=True,on_delete=models.CASCADE, related_name="user_kelas_lesson")
+    bab_kelas   = models.ForeignKey("modul.Bab",blank=True, null=True,on_delete=models.CASCADE, related_name="user_bab_kelas_lesson")
+    pelajaran   = models.ForeignKey("modul.Pelajaran",blank=True, null=True,on_delete=models.CASCADE, related_name="user_pelajaran")
     userCourse  = models.ForeignKey(Enroll,blank=True, null=True,on_delete=models.CASCADE, related_name="usercourse_lesson")
     isdone      = models.BooleanField(default=False)
     question    = models.CharField(max_length=225, blank=True, null=True)
@@ -40,8 +39,8 @@ class UserPelajaran(models.Model):
     
 class UserBab(models.Model):
     user        = models.ForeignKey(user_root, blank=True, null=True,on_delete=models.CASCADE, related_name="user_bab_user")
-    kelas       = models.ForeignKey(Module,blank=True, null=True,on_delete=models.CASCADE, related_name="user_kelas_bab")
-    bab_kelas   = models.ForeignKey(Bab,blank=True, null=True,on_delete=models.CASCADE, related_name="userbab_bab")
+    kelas       = models.ForeignKey("modul.Module",blank=True, null=True,on_delete=models.CASCADE, related_name="user_kelas_bab")
+    bab_kelas   = models.ForeignKey("modul.Bab",blank=True, null=True,on_delete=models.CASCADE, related_name="userbab_bab")
     userCourse  = models.ForeignKey(Enroll,blank=True, null=True,on_delete=models.CASCADE, related_name="usercourse_bab")
     isdone      = models.BooleanField(default=False)
     tgl         = models.DateField(auto_now_add=False, blank=True, null=True)
@@ -52,7 +51,7 @@ class UserBab(models.Model):
 #vocab yang sudah di kerjakan
 class UserVocab(models.Model):
     user        = models.ForeignKey(user_root, blank=True, null=True,on_delete=models.CASCADE, related_name="user_vocab_user")
-    vocab       = models.ForeignKey(VocabGroup, blank=True, null=True,on_delete=models.CASCADE, related_name="vocab")
+    vocab       = models.ForeignKey("modul.VocabGroup", blank=True, null=True,on_delete=models.CASCADE, related_name="vocab")
     level       = models.IntegerField(default=0)
     benar       = models.IntegerField(default=0)
     salah       = models.IntegerField(default=0)
@@ -63,9 +62,9 @@ class UserVocab(models.Model):
 #games yang sudah di selesaikan
 class UserGames(models.Model):
     user        = models.ForeignKey(user_root, blank=True, null=True,on_delete=models.CASCADE, related_name="user_games_user")
-    games       = models.ForeignKey(Games,blank=True, null=True,on_delete=models.CASCADE, related_name="Usergames_Games")
-    kelas       = models.ForeignKey(Module,blank=True, null=True,on_delete=models.CASCADE, related_name="Usergames_kelas")
-    bab_kelas   = models.ForeignKey(Bab,blank=True, null=True,on_delete=models.CASCADE, related_name="userbab_games")
+    games       = models.ForeignKey("modul.Games",blank=True, null=True,on_delete=models.CASCADE, related_name="Usergames_Games")
+    kelas       = models.ForeignKey("modul.Module",blank=True, null=True,on_delete=models.CASCADE, related_name="Usergames_kelas")
+    bab_kelas   = models.ForeignKey("modul.Bab",blank=True, null=True,on_delete=models.CASCADE, related_name="userbab_games")
     right       = models.IntegerField(default=0) #jumlah benar
     wrong       = models.IntegerField(default=0)  #jumlah salah
     failed      = models.IntegerField(default=0) #jumlah orang yg skip
@@ -74,9 +73,9 @@ class UserGames(models.Model):
     
 class UserLatihan(models.Model):
     user        = models.ForeignKey(user_root, blank=True, null=True,on_delete=models.CASCADE, related_name="user_latihan_user")
-    kelas       = models.ForeignKey(Module,blank=True, null=True,on_delete=models.CASCADE, related_name="user_kelas_latihan")
-    pelajaran   = models.ForeignKey(Pelajaran,blank=True, null=True,on_delete=models.CASCADE, related_name="user_latihan_pelajaran")
-    bab_kelas   = models.ForeignKey(Bab,blank=True, null=True,on_delete=models.CASCADE, related_name="user_latihan")
+    kelas       = models.ForeignKey("modul.Module",blank=True, null=True,on_delete=models.CASCADE, related_name="user_kelas_latihan")
+    pelajaran   = models.ForeignKey("modul.Pelajaran",blank=True, null=True,on_delete=models.CASCADE, related_name="user_latihan_pelajaran")
+    bab_kelas   = models.ForeignKey("modul.Bab",blank=True, null=True,on_delete=models.CASCADE, related_name="user_latihan")
     is_last     = models.BooleanField(default=False)
     is_finish   = models.BooleanField(default=False)
     nilai       = models.IntegerField(blank=True, null=True)
@@ -92,9 +91,9 @@ class UserLatihan(models.Model):
 
 class UserQuestion(models.Model):
     user        = models.ForeignKey(user_root, blank=True, null=True,on_delete=models.CASCADE, related_name="user_question_user")
-    questions   = models.ForeignKey(Soal,blank=True, null=True,on_delete=models.CASCADE, related_name="UserQuestion_Question")
-    kelas       = models.ForeignKey(Module,blank=True, null=True,on_delete=models.CASCADE, related_name="UserQuestion_kelas")
-    bab_kelas   = models.ForeignKey(Bab,blank=True, null=True,on_delete=models.CASCADE, related_name="userbab_Question")
+    questions   = models.ForeignKey("modul.Soal",blank=True, null=True,on_delete=models.CASCADE, related_name="UserQuestion_Question")
+    kelas       = models.ForeignKey("modul.Module",blank=True, null=True,on_delete=models.CASCADE, related_name="UserQuestion_kelas")
+    bab_kelas   = models.ForeignKey("modul.Bab",blank=True, null=True,on_delete=models.CASCADE, related_name="userbab_Question")
     latihan     = models.ForeignKey(UserLatihan,blank=True, null=True,on_delete=models.CASCADE, related_name="user_latihan")
     selected    = models.CharField(max_length=225, blank=True, null=True)
     right       = models.BooleanField(default=False)

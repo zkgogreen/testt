@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User as user_root
 from ckeditor.fields import RichTextField
 from config.models import Level, Kategori
+from modul.models.user import Enroll
 
 Language = [('EN', 'English'),('JP', 'Japan'),('SA', 'Arab'),('CN', 'China')]
 # Create your models here.
@@ -23,8 +24,16 @@ class Module(models.Model):
     certificate = models.BooleanField(default=False)
     rilis       = models.BooleanField(default=False)
     urutan      = models.IntegerField(blank=True, null=True)
+
+    enroll      = Enroll.objects.all()
     def __str__(self):
-        return " {}".format(self.module)
+        return " {}".format(self.nama)
+    def subscribe(self):
+        return self.enroll.filter(kelas=self, enroll=True).count()
+    def pelajaran(self):
+        return Pelajaran.objects.filter(module=self).count()
+    def finish(self):
+        return self.enroll.filter(kelas=self, finish=True).count()
     
 # perubahan module yang ajukan oleh guru
 class Update(models.Model):
